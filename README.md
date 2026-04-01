@@ -1,69 +1,130 @@
-# pi-tutor
+# opencode-tutor
 
-### Personal coding tutor for pi
+### Personal coding tutor for opencode
 
-`pi-tutor` turns pi into a teaching-oriented coding assistant.
+`opencode-tutor` turns opencode into a teaching-oriented coding assistant.
 
 It adapts to how you like to learn, remembers what you're learning, resumes topics over time, and guides you with hint-first help instead of jumping straight to solutions.
 
-## What this is
+> Based on [pi-tutor](https://github.com/denismrvoljak/pi-tutor) by Denis Mrvoljak. Original idea and tutoring methodology adapted for the opencode platform.
 
-`pi-tutor` is a tutor extension for pi. It is meant for learning while coding — not just getting answers, but building understanding, practicing in small steps, and keeping momentum across sessions.
+## Features
 
-## What it does
+- Adapts to your learning style and preferences
+- Remembers what you're learning and resumes it later
+- Keeps separate topic folders for different learning tracks
+- Prefers hints, questions, and next steps before full solutions
+- Helps you reflect on progress, blockers, and what to do next
+- Supports learning through small projects, exercises, and repeated practice
+- Pure markdown state — no hidden active-track state, no TypeScript dependencies
 
-- adapts to your learning style and preferences
-- remembers what you're learning and resumes it later
-- keeps separate topic folders for different learning tracks
-- prefers hints, questions, and next steps before full solutions
-- helps you reflect on progress, blockers, and what to do next
-- supports learning through small projects, exercises, and repeated practice
+## Installation
+
+Clone the repo and add it to your opencode plugins directory:
+
+```bash
+git clone https://github.com/bsakel/opencode-tutor ~/.opencode/plugins/opencode-tutor
+```
+
+Or symlink it if you want to develop locally:
+
+```bash
+ln -s /absolute/path/to/opencode-tutor ~/.opencode/plugins/opencode-tutor
+```
+
+opencode will automatically discover the plugin via `plugin.json` and register the `tutor` agent and skills.
 
 ## Quick start
 
-```bash
-pi install https://github.com/denismrvoljak/pi-tutor
-```
-
-Then open pi and enable tutor mode:
+Switch to the tutor agent inside opencode:
 
 ```text
-/tutor on
+/agent tutor
 ```
 
-## What it includes
+That's it — you're in tutor mode. All messages go through the tutor agent until you switch away.
 
-- `/tutor on`
-- `/tutor off`
-- `/tutor status`
-- conversational onboarding that creates `learner-profile.md`
-- topic tracks under `tracks/<topic-folder>/`
-- track-aware prompt templates:
-  - `/start_tutoring`
-  - `/hint`
-  - `/reflect`
-  - `/next_step`
-- track-aware skills for implementation mentoring and topic learning
-- guards that require tutor mode to be on before tutor workflows run
+To return to the default coding agent:
+
+```text
+/agent code
+```
+
+## Usage examples
+
+### 1. First-time onboarding
+
+```text
+/agent tutor
+I want to learn SQL joins through small exercises. I'm intermediate and I prefer hints over full solutions.
+```
+
+Expected outcome:
+- The tutor asks only for missing onboarding details if needed
+- `~/.opencode/tutor/learner-profile.md` is created
+- Future tutoring turns use that profile
+
+### 2. Create a new track
+
+```text
+/agent tutor
+I want to learn Redis caching patterns
+```
+
+Expected outcome:
+- If no matching track exists, the tutor creates `~/.opencode/tutor/tracks/redis-caching/`
+- The new track gets `track.md`, `project.md`, `roadmap.md`, and `progress.md`
+- Roadmap tasks are tracked as markdown checkboxes and mirrored into progress journey status
+
+### 3. Resume an existing track
+
+```text
+/agent tutor
+I want to keep learning SQL joins
+```
+
+Expected outcome:
+- The tutor matches the saved track by name
+- It reads `track.md`, `project.md`, `roadmap.md`, and `progress.md`
+- Tutoring resumes from the current focus or next step
+
+### 4. Ask for a hint
+
+```text
+give me a hint on LEFT JOIN filtering
+```
+
+Expected outcome:
+- The tutor gives the next hint level instead of jumping to the full solution
+- If you report meaningful progress or a blocker, `progress.md` is updated
+
+### 5. Reflect on what happened
+
+```text
+I finished two exercises but still confuse WHERE vs ON
+```
+
+Expected outcome:
+- The tutor records the reflection in `progress.md`
+- Blockers and completed items are adjusted if needed
+- `Next step` is refreshed
+
+### 6. Ask what to do next
+
+```text
+what should I do next for SQL joins?
+```
+
+Expected outcome:
+- The tutor reads the latest roadmap and progress context
+- It refreshes `progress.md` if needed and returns one concrete next step
 
 ## State layout
 
-All tutor data lives under:
+All tutor data lives under `~/.opencode/tutor/`:
 
 ```text
-${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/
-```
-
-### Global learner state
-
-- `learner-profile.md` — durable learner preferences, goals, topics, and tutoring style
-
-### Per-topic track state
-
-Each learning stream gets its own directory under `tracks/<topic-folder>/`:
-
-```text
-${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/
+~/.opencode/tutor/
 ├── learner-profile.md
 └── tracks/
     └── <topic-folder>/
@@ -73,194 +134,40 @@ ${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/
         └── progress.md
 ```
 
-The folder name is just a short filesystem-safe topic name.
+The folder name is a short filesystem-safe topic slug (lowercase, hyphens, no special characters).
 
 File roles:
-
+- `learner-profile.md` — durable learner preferences, goals, topics, and tutoring style
 - `track.md` — what the track is about, keywords, learner-specific notes
 - `project.md` — concrete project brief (goal, scope, acceptance criteria, constraints, deliverables)
 - `roadmap.md` — milestones and checkbox todo tasks/exercises (`- [ ]` / `- [x]`)
 - `progress.md` — journey status (roadmap completion), current focus, completed work, reflections, blockers, next step
 
-This package is intentionally markdown-first. There is **no hidden active-track state** to keep in sync.
+This plugin is intentionally markdown-first. There is **no hidden active-track state** to keep in sync.
 
-## Local development install
+## Development
 
-Run `pnpm install` once in the package repo before installing it into pi.
+### Modifying the agent
 
-```bash
-cd /absolute/path/to/pi-tutor
-pnpm install
-```
+Edit `agents/tutor.agent.md` to change tutor behavior, add interaction patterns, or update the templates for state files. This single file replaces all of the pi extension logic, prompt templates, and system prompt injection.
 
-### Local path install
+### Adding skills
 
-Use this when developing on the package itself:
+Create a new directory under `skills/<name>/` with a `SKILL.md` file. Follow the pattern in the existing skill files: frontmatter with `name`, `description`, and `disable-model-invocation: true`, then markdown instructions.
 
-```bash
-pi install /absolute/path/to/pi-tutor
-pi list
-```
+### Testing
 
-### Project-local install
+See [TESTING.md](TESTING.md) for the verification checklist.
 
-Use this when you want a clean temporary environment or project-scoped setup:
-
-```bash
-cd /absolute/path/to/pi-tutor
-pnpm install
-
-export PI_CODING_AGENT_DIR="$(mktemp -d)"
-tmp_proj="$(mktemp -d)"
-cd "$tmp_proj"
-
-pi install -l /absolute/path/to/pi-tutor
-pi list
-pi
-```
-
-## Local development workflow with `/reload`
-
-After the first local install, keep editing files in `/absolute/path/to/pi-tutor` and use `/reload` inside pi instead of reinstalling every time.
-
-Typical loop:
-
-```bash
-cd /absolute/path/to/pi-tutor
-pnpm test
-
-export PI_CODING_AGENT_DIR="$(mktemp -d)"
-tmp_proj="$(mktemp -d)"
-cd "$tmp_proj"
-
-pi install -l /absolute/path/to/pi-tutor
-pi
-```
-
-Inside pi:
-
-```text
-/tutor on
-/reload
-```
-
-What `/reload` should pick up:
-
-- extension changes
-- prompt template changes
-- skill changes
-- README / packaging changes are still verified by tests and smoke checks outside pi
-
-## Everyday usage examples
-
-All tutor workflows below assume tutor mode is on.
-
-### 1. First-time onboarding
-
-```text
-/tutor on
-I want to learn SQL joins through small exercises. I'm intermediate and I prefer hints over full solutions.
-```
-
-Expected outcome:
-
-- pi asks only for missing onboarding details if needed
-- `learner-profile.md` is created
-- future tutoring turns use that profile
-
-### 2. Create a new track
-
-```text
-/tutor on
-I want to keep learning Redis caching patterns
-```
-
-Expected outcome:
-
-- if no matching track exists, pi creates `tracks/<topic-folder>/`
-- the new track gets `track.md`, `project.md`, `roadmap.md`, and `progress.md`
-- roadmap tasks are tracked as markdown checkboxes and mirrored into progress journey status
-
-### 3. Resume an existing track
-
-```text
-/tutor on
-I want to keep learning SQL joins
-```
-
-Expected outcome:
-
-- pi matches the saved track heuristically
-- pi injects the matching `track.md`, `project.md`, `roadmap.md`, and `progress.md`
-- tutoring resumes from the current focus or next step
-
-### 4. Ask for the next hint
-
-```text
-/hint LEFT JOIN filtering
-```
-
-Expected outcome:
-
-- pi gives the next hint level instead of jumping to the full solution
-- if you report meaningful progress or a blocker, `progress.md` can be updated
-
-### 5. Reflect on what happened
-
-```text
-/reflect I finished two exercises but still confuse WHERE vs ON
-```
-
-Expected outcome:
-
-- pi records the reflection in `progress.md`
-- blockers and completed items are adjusted if needed
-- `Next step` is refreshed
-
-### 6. Ask what to do next
-
-```text
-/next_step SQL joins
-```
-
-Expected outcome:
-
-- pi resumes the named track
-- pi reads the latest roadmap + progress context
-- pi refreshes `progress.md` if needed and returns one concrete next step
-
-## Development and verification commands
-
-```bash
-cd /absolute/path/to/pi-tutor
-pnpm test
-pnpm check
-pnpm pack:smoke
-```
-
-Useful extra loop when you only want to test the extension file directly:
-
-```bash
-pi --no-session -e /absolute/path/to/pi-tutor/extensions/pi-tutor/index.ts
-```
+> The `archive/` folder contains the original pi-tutor source code for reference during development. It will be removed in a future cleanup pass once the opencode port is fully verified.
 
 ## Known limitations
 
-- **Heuristic track matching.** Track selection is string-matching based, so overlapping topic names can still confuse it.
-- **Name the topic clearly.** Because state is markdown-first and there is no hidden active-track state, resume works best when the learner names the topic clearly.
-- **No active-track file.** The package does not keep hidden current-track state.
-- **Single-agent package.** No subagents are required or bundled.
-
-## Smoke-check expectations
-
-For a clean-environment verification run, check that:
-
-- `pi list` shows the installed package source containing `pi-tutor`
-- the package works with a fresh `PI_CODING_AGENT_DIR`
-- no existing learner/profile state is required
-- `/start_tutoring`, `/hint`, `/reflect`, and `/next_step` are available after install
-- those tutor workflow commands refuse to run until `/tutor on` is enabled
+- **Heuristic track matching.** Track selection is based on folder name and keywords, so overlapping topic names may be ambiguous. Name topics clearly.
+- **Name the topic clearly.** Because state is markdown-first with no hidden active-track state, resume works best when the learner names the topic clearly.
+- **No active-track file.** The plugin does not keep hidden current-track state between sessions.
 
 ## License
 
 MIT
+

@@ -1,0 +1,7 @@
+{
+  "name": "opencode-tutor",
+  "version": "1.0.0",
+  "description": "A personal tutor agent for opencode that adapts to your learning style, remembers what you're learning, and guides you with hints, projects, and next steps.",
+  "license": "MIT",
+  "repository": "https://github.com/bsakel/opencode-tutor"
+}

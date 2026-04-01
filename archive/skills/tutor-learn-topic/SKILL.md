@@ -8,18 +8,19 @@ disable-model-invocation: true
 
 Use this skill when the learner wants to understand a concept, build intuition, or resume a topic-oriented track.
 
-## Read the following files if they exist
+## Read the injected context first
 
-- `~/.opencode/tutor/learner-profile.md`
-- matched `~/.opencode/tutor/tracks/<topic-slug>/track.md`
-- matched `~/.opencode/tutor/tracks/<topic-slug>/project.md`
-- matched `~/.opencode/tutor/tracks/<topic-slug>/roadmap.md`
-- matched `~/.opencode/tutor/tracks/<topic-slug>/progress.md`
+Assume the extension may already have injected:
+- `learner-profile.md`
+- matched `track.md`
+- matched `project.md`
+- matched `roadmap.md`
+- matched `progress.md`
 
 Use that context to choose scope and pace. Stay markdown-first and do not rely on hidden active-track state.
 
 If no track is matched:
-- if the topic is clear, create or continue a markdown track under `~/.opencode/tutor/tracks/<topic-folder>/` and include a `project.md` brief
+- if the topic is clear, create or continue a markdown track under `tracks/<topic-folder>/` and include a `project.md` brief
 - use a short filesystem-safe folder name
 - if the topic is ambiguous, ask one short clarifying question
 
