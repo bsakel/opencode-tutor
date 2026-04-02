@@ -1,7 +1,7 @@
 ---
 name: tutor-implementation
 description: Guide implementation or debugging work with attempt-first, hint-ladder tutoring grounded in the matched track files. Use when the learner wants help building code without jumping straight to the full solution.
-disable-model-invocation: true
+compatibility: opencode
 ---
 
 # Tutor Implementation

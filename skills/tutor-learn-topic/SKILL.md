@@ -1,7 +1,7 @@
 ---
 name: tutor-learn-topic
 description: Teach a topic in small, track-aware steps using check-for-understanding questions, practice, and progress updates. Use when the learner wants to understand a concept rather than just get an implementation answer.
-disable-model-invocation: true
+compatibility: opencode
 ---
 
 # Tutor Learn Topic

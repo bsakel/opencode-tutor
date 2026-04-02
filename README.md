@@ -1,8 +1,8 @@
 # opencode-tutor
 
-### Personal coding tutor for opencode
+### Personal coding tutor for OpenCode
 
-`opencode-tutor` turns opencode into a teaching-oriented coding assistant.
+`opencode-tutor` turns OpenCode into a teaching-oriented coding assistant.
 
 It adapts to how you like to learn, remembers what you're learning, resumes topics over time, and guides you with hint-first help instead of jumping straight to solutions.
 
@@ -20,42 +20,50 @@ It adapts to how you like to learn, remembers what you're learning, resumes topi
 
 ## Installation
 
-Clone the repo and add it to your opencode plugins directory:
+This repo is an OpenCode config directory, not a JavaScript plugin. OpenCode needs the `agents/` and `skills/` directories from this repo to be visible from one of its config roots.
+
+### Option 1: Run OpenCode with this repo as `OPENCODE_CONFIG_DIR`
+
+Clone the repo anywhere:
 
 ```bash
-git clone https://github.com/bsakel/opencode-tutor ~/.opencode/plugins/opencode-tutor
+git clone https://github.com/bsakel/opencode-tutor ~/src/opencode-tutor
 ```
 
-Or symlink it if you want to develop locally:
+Then launch OpenCode with:
 
 ```bash
-ln -s /absolute/path/to/opencode-tutor ~/.opencode/plugins/opencode-tutor
+OPENCODE_CONFIG_DIR=~/src/opencode-tutor opencode
 ```
 
-opencode will automatically discover the plugin via `plugin.json` and register the `tutor` agent and skills.
+### Option 2: Symlink the agent and skills into your global OpenCode config
+
+```bash
+mkdir -p ~/.config/opencode/agents ~/.config/opencode/skills
+ln -sf /absolute/path/to/opencode-tutor/agents/tutor.md ~/.config/opencode/agents/tutor.md
+ln -sfn /absolute/path/to/opencode-tutor/skills/tutor-implementation ~/.config/opencode/skills/tutor-implementation
+ln -sfn /absolute/path/to/opencode-tutor/skills/tutor-learn-topic ~/.config/opencode/skills/tutor-learn-topic
+```
+
+OpenCode will then discover:
+
+- the `tutor` primary agent from `agents/tutor.md`
+- the `tutor-implementation` skill
+- the `tutor-learn-topic` skill
 
 ## Quick start
 
-Switch to the tutor agent inside opencode:
+1. Install the repo using one of the methods above.
+2. Restart OpenCode if it was already running.
+3. Switch to the `tutor` agent from the normal agent picker / switcher.
 
-```text
-/agent tutor
-```
-
-That's it — you're in tutor mode. All messages go through the tutor agent until you switch away.
-
-To return to the default coding agent:
-
-```text
-/agent code
-```
+That's it. You're in tutor mode until you switch back to another primary agent.
 
 ## Usage examples
 
 ### 1. First-time onboarding
 
 ```text
-/agent tutor
 I want to learn SQL joins through small exercises. I'm intermediate and I prefer hints over full solutions.
 ```
 
@@ -67,7 +75,6 @@ Expected outcome:
 ### 2. Create a new track
 
 ```text
-/agent tutor
 I want to learn Redis caching patterns
 ```
 
@@ -79,7 +86,6 @@ Expected outcome:
 ### 3. Resume an existing track
 
 ```text
-/agent tutor
 I want to keep learning SQL joins
 ```
 
@@ -143,29 +149,29 @@ File roles:
 - `roadmap.md` — milestones and checkbox todo tasks/exercises (`- [ ]` / `- [x]`)
 - `progress.md` — journey status (roadmap completion), current focus, completed work, reflections, blockers, next step
 
-This plugin is intentionally markdown-first. There is **no hidden active-track state** to keep in sync.
+This config is intentionally markdown-first. There is **no hidden active-track state** to keep in sync.
 
 ## Development
 
 ### Modifying the agent
 
-Edit `agents/tutor.agent.md` to change tutor behavior, add interaction patterns, or update the templates for state files. This single file replaces all of the pi extension logic, prompt templates, and system prompt injection.
+Edit `agents/tutor.md` to change tutor behavior, add interaction patterns, or update the templates for state files. This single file replaces all of the pi extension logic, prompt templates, and system prompt injection.
 
 ### Adding skills
 
-Create a new directory under `skills/<name>/` with a `SKILL.md` file. Follow the pattern in the existing skill files: frontmatter with `name`, `description`, and `disable-model-invocation: true`, then markdown instructions.
+Create a new directory under `skills/<name>/` with a `SKILL.md` file. Follow the pattern in the existing skill files: frontmatter with `name` and `description`, then markdown instructions.
 
 ### Testing
 
 See [TESTING.md](TESTING.md) for the verification checklist.
 
-> The `archive/` folder contains the original pi-tutor source code for reference during development. It will be removed in a future cleanup pass once the opencode port is fully verified.
+> The `archive/` folder contains the original pi-tutor source code for reference during development. It will be removed in a future cleanup pass once the OpenCode port is fully verified.
 
 ## Known limitations
 
 - **Heuristic track matching.** Track selection is based on folder name and keywords, so overlapping topic names may be ambiguous. Name topics clearly.
 - **Name the topic clearly.** Because state is markdown-first with no hidden active-track state, resume works best when the learner names the topic clearly.
-- **No active-track file.** The plugin does not keep hidden current-track state between sessions.
+- **No active-track file.** The tutor does not keep hidden current-track state between sessions.
 
 ## License
 

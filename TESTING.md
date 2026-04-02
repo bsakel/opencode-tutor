@@ -1,17 +1,19 @@
 # Testing Checklist
 
-Use this checklist to verify that the opencode-tutor plugin is working correctly after installation or modification.
+Use this checklist to verify that the opencode-tutor OpenCode config is working correctly after installation or modification.
 
 ## Setup
 
-1. Install the plugin (see [README.md](README.md) for installation instructions).
-2. Open opencode in a project directory.
+1. Install the config (see [README.md](README.md) for installation instructions).
+2. Open OpenCode in a project directory.
 
 ## Verification steps
 
 ### Switch to tutor agent
 
-- [ ] Run `/agent tutor` in opencode
+- [ ] Confirm the repo is installed through `OPENCODE_CONFIG_DIR` or linked into `~/.config/opencode`
+- [ ] Start or restart OpenCode
+- [ ] Select the `tutor` agent in OpenCode
 - [ ] Confirm the active agent changes to `tutor`
 
 ### Onboarding
@@ -60,6 +62,6 @@ Use this checklist to verify that the opencode-tutor plugin is working correctly
 
 ### Switch away from tutor mode
 
-- [ ] Run `/agent code`
-- [ ] Confirm the active agent changes back to the default coding agent
+- [ ] Switch back to another primary agent
+- [ ] Confirm the active agent changes away from `tutor`
 - [ ] Confirm tutor-specific behaviors (hint-first, onboarding check) are no longer active
