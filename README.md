@@ -20,40 +20,55 @@ It adapts to how you like to learn, remembers what you're learning, resumes topi
 
 ## Installation
 
-This repo is an OpenCode config directory, not a JavaScript plugin. OpenCode needs the `agents/` and `skills/` directories from this repo to be visible from one of its config roots.
+This repo is an OpenCode config directory, not a JavaScript plugin. OpenCode discovers agents from `~/.config/opencode/agents/` and skills from `~/.config/opencode/skills/`.
 
-### Option 1: Run OpenCode with this repo as `OPENCODE_CONFIG_DIR`
+### Quick test (human)
 
-Clone the repo anywhere:
-
-```bash
-git clone https://github.com/bsakel/opencode-tutor ~/src/opencode-tutor
-```
-
-Then launch OpenCode with:
+If you want to try the tutor without modifying your global OpenCode config, you can run OpenCode from a temporary clone:
 
 ```bash
-OPENCODE_CONFIG_DIR=~/src/opencode-tutor opencode
+cd $(mktemp -d)
+git clone https://github.com/bsakel/opencode-tutor.git .
+OPENCODE_CONFIG_DIR="$(pwd)" opencode
 ```
 
-### Option 2: Symlink the agent and skills into your global OpenCode config
+OpenCode will use the repo’s `agents/` and `skills/` directories for the current session. Delete the temp directory when you’re done.
+
+### Install (agent)
+
+For a permanent install into your global OpenCode config, run in a shell:
 
 ```bash
-mkdir -p ~/.config/opencode/agents ~/.config/opencode/skills
-ln -sf /absolute/path/to/opencode-tutor/agents/tutor.md ~/.config/opencode/agents/tutor.md
-ln -sfn /absolute/path/to/opencode-tutor/skills/tutor-implementation ~/.config/opencode/skills/tutor-implementation
-ln -sfn /absolute/path/to/opencode-tutor/skills/tutor-learn-topic ~/.config/opencode/skills/tutor-learn-topic
+set -eu
+
+REPO=$(mktemp -d)
+git clone https://github.com/bsakel/opencode-tutor.git "$REPO"
+
+mkdir -p ~/.config/opencode/agents
+mkdir -p ~/.config/opencode/skills
+
+cp "$REPO/agents/tutor.md" ~/.config/opencode/agents/tutor.md
+cp -r "$REPO/skills/tutor-implementation" ~/.config/opencode/skills/tutor-implementation
+cp -r "$REPO/skills/tutor-learn-topic" ~/.config/opencode/skills/tutor-learn-topic
+
+rm -r "$REPO"
 ```
 
-OpenCode will then discover:
+After restarting OpenCode, the `tutor` primary agent and its skills will be discovered automatically.
 
-- the `tutor` primary agent from `agents/tutor.md`
-- the `tutor-implementation` skill
-- the `tutor-learn-topic` skill
+## Uninstall
+
+Remove the agent and skills from your global config:
+
+```bash
+rm -f ~/.config/opencode/agents/tutor.md
+rm -rf ~/.config/opencode/skills/tutor-implementation
+rm -rf ~/.config/opencode/skills/tutor-learn-topic
+```
 
 ## Quick start
 
-1. Install the repo using one of the methods above.
+1. Install the tutor using one of the methods above.
 2. Restart OpenCode if it was already running.
 3. Switch to the `tutor` agent from the normal agent picker / switcher.
 
@@ -165,7 +180,7 @@ Create a new directory under `skills/<name>/` with a `SKILL.md` file. Follow the
 
 See [TESTING.md](TESTING.md) for the verification checklist.
 
-> The `archive/` folder contains the original pi-tutor source code for reference during development. It will be removed in a future cleanup pass once the OpenCode port is fully verified.
+> The original `pi-tutor` sources are preserved in the upstream repo at https://github.com/denismrvoljak/pi-tutor for reference.
 
 ## Known limitations
 
